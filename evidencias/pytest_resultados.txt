@@ -1,0 +1,46 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.2, pytest-8.3.4, pluggy-1.7.0 -- C:\Users\USER\Desktop\9° Semestre\Sistemas Distribuidos\TallerMicroservicios\.venv\Scripts\python.exe
+rootdir: C:\Users\USER\Desktop\9° Semestre\Sistemas Distribuidos\TallerMicroservicios
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1
+collecting ... collected 36 items
+
+tests/test_clientes.py::test_health PASSED                               [  2%]
+tests/test_clientes.py::test_consultar_clientes PASSED                   [  5%]
+tests/test_clientes.py::test_registrar_y_consultar_cliente PASSED        [  8%]
+tests/test_clientes.py::test_cliente_inexistente PASSED                  [ 11%]
+tests/test_clientes.py::test_email_duplicado PASSED                      [ 13%]
+tests/test_clientes.py::test_email_invalido PASSED                       [ 16%]
+tests/test_clientes.py::test_actualizar_y_eliminar_cliente PASSED        [ 19%]
+tests/test_gateway.py::test_enruta_a_productos PASSED                    [ 22%]
+tests/test_gateway.py::test_enruta_post_a_clientes PASSED                [ 25%]
+tests/test_gateway.py::test_enruta_subrutas_y_errores PASSED             [ 27%]
+tests/test_gateway.py::test_servicio_desconocido PASSED                  [ 30%]
+tests/test_gateway.py::test_estado_operativo PASSED                      [ 33%]
+tests/test_gateway.py::test_aislamiento_de_fallos PASSED                 [ 36%]
+tests/test_pedidos.py::test_registrar_pedido_valida_y_descuenta_stock PASSED [ 38%]
+tests/test_pedidos.py::test_items_repetidos_se_agrupan PASSED            [ 41%]
+tests/test_pedidos.py::test_cliente_inexistente PASSED                   [ 44%]
+tests/test_pedidos.py::test_producto_inexistente PASSED                  [ 47%]
+tests/test_pedidos.py::test_stock_insuficiente PASSED                    [ 50%]
+tests/test_pedidos.py::test_consultar_pedidos_y_estado PASSED            [ 52%]
+tests/test_pedidos.py::test_ciclo_de_vida_del_pedido PASSED              [ 55%]
+tests/test_pedidos.py::test_transicion_invalida PASSED                   [ 58%]
+tests/test_pedidos.py::test_cancelar_pedido_repone_stock PASSED          [ 61%]
+tests/test_pedidos.py::test_productos_caido_responde_503_con_reintentos PASSED [ 63%]
+tests/test_pedidos.py::test_clientes_caido_responde_503 PASSED           [ 66%]
+tests/test_pedidos.py::test_consultas_siguen_funcionando_sin_productos PASSED [ 69%]
+tests/test_pedidos.py::test_compensacion_si_falla_segundo_producto PASSED [ 72%]
+tests/test_pedidos.py::test_cancelar_con_productos_caido_conserva_estado PASSED [ 75%]
+tests/test_productos.py::test_health PASSED                              [ 77%]
+tests/test_productos.py::test_consultar_catalogo PASSED                  [ 80%]
+tests/test_productos.py::test_filtrar_por_categoria_y_disponibilidad PASSED [ 83%]
+tests/test_productos.py::test_consultar_producto_inexistente PASSED      [ 86%]
+tests/test_productos.py::test_registrar_producto PASSED                  [ 88%]
+tests/test_productos.py::test_registrar_producto_invalido PASSED         [ 91%]
+tests/test_productos.py::test_actualizar_y_eliminar_producto PASSED      [ 94%]
+tests/test_productos.py::test_descontar_y_reponer_stock PASSED           [ 97%]
+tests/test_productos.py::test_descontar_stock_insuficiente PASSED        [100%]
+
+============================= 36 passed in 0.46s ==============================

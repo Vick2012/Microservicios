@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Monolito vs microservicios</title>
+<style>
+  body { margin: 0; background: #fff; font-family: "Segoe UI", Arial, sans-serif; }
+  .t { font-size: 20px; font-weight: 700; fill: #10233f; }
+  .s { font-size: 15px; fill: #44546a; }
+  .w { font-size: 16px; font-weight: 600; fill: #10233f; }
+  .bad { font-size: 15px; fill: #b91c1c; }
+  .ok { font-size: 15px; fill: #15803d; }
+  .ttl { font-size: 26px; font-weight: 700; fill: #10233f; }
+</style></head>
+<body>
+<svg width="1400" height="720" viewBox="0 0 1400 720" xmlns="http://www.w3.org/2000/svg">
+  <text x="700" y="40" text-anchor="middle" class="ttl">Arquitectura actual (monolito) vs. propuesta (microservicios)</text>
+
+  <!-- Monolito -->
+  <text x="330" y="90" text-anchor="middle" class="t">ACTUAL: aplicación monolítica</text>
+  <rect x="60" y="110" width="540" height="330" rx="14" fill="#fdecec" stroke="#b91c1c" stroke-width="2.5"/>
+  <text x="330" y="140" text-anchor="middle" class="w">Un solo proceso · un solo despliegue</text>
+  <g fill="#fff" stroke="#b91c1c" stroke-width="1.5">
+    <rect x="90" y="160" width="230" height="60" rx="8"/><rect x="340" y="160" width="230" height="60" rx="8"/>
+    <rect x="90" y="235" width="230" height="60" rx="8"/><rect x="340" y="235" width="230" height="60" rx="8"/>
+  </g>
+  <text x="205" y="196" text-anchor="middle" class="w">Módulo Productos</text>
+  <text x="455" y="196" text-anchor="middle" class="w">Módulo Clientes</text>
+  <text x="205" y="271" text-anchor="middle" class="w">Módulo Pedidos</text>
+  <text x="455" y="271" text-anchor="middle" class="w">Módulo Pagos</text>
+  <g fill="#fff" stroke="#b91c1c" stroke-width="2">
+    <path d="M230,340 v50 a100,18 0 0 0 200,0 v-50"/><ellipse cx="330" cy="340" rx="100" ry="18"/>
+  </g>
+  <text x="330" y="385" text-anchor="middle" class="w">Base de datos compartida</text>
+  <text x="80" y="480" class="bad">✗ Actualizar el catálogo obliga a redesplegar todo</text>
+  <text x="80" y="508" class="bad">✗ Picos de consultas de productos frenan los pedidos</text>
+  <text x="80" y="536" class="bad">✗ Solo se escala la aplicación completa</text>
+  <text x="80" y="564" class="bad">✗ Un fallo en un módulo puede tumbar toda la tienda</text>
+  <text x="80" y="592" class="bad">✗ Alto acoplamiento por la base de datos común</text>
+
+  <!-- Flecha -->
+  <path d="M620,275 h120" stroke="#1f3b63" stroke-width="4" fill="none"/>
+  <path d="M740,260 l25,15 l-25,15 z" fill="#1f3b63"/>
+  <text x="690" y="255" text-anchor="middle" class="s">migración</text>
+
+  <!-- Microservicios -->
+  <text x="1070" y="90" text-anchor="middle" class="t">PROPUESTA: microservicios</text>
+  <rect x="800" y="110" width="540" height="60" rx="10" fill="#1f3b63"/>
+  <text x="1070" y="147" text-anchor="middle" class="w" style="fill:#fff">API Gateway</text>
+  <g stroke-width="2">
+    <rect x="800" y="200" width="165" height="110" rx="10" fill="#e0ecff" stroke="#2563eb"/>
+    <rect x="987" y="200" width="165" height="110" rx="10" fill="#e7f6ec" stroke="#15803d"/>
+    <rect x="1175" y="200" width="165" height="110" rx="10" fill="#fff4e5" stroke="#c2410c"/>
+  </g>
+  <text x="882" y="250" text-anchor="middle" class="w">Productos</text>
+  <text x="882" y="275" text-anchor="middle" class="s">×3 réplicas</text>
+  <text x="1070" y="250" text-anchor="middle" class="w">Clientes</text>
+  <text x="1070" y="275" text-anchor="middle" class="s">×1</text>
+  <text x="1257" y="250" text-anchor="middle" class="w">Pedidos</text>
+  <text x="1257" y="275" text-anchor="middle" class="s">×1</text>
+  <g stroke="#475569" stroke-width="2" fill="#f8fafc">
+    <path d="M842,350 v40 a40,10 0 0 0 80,0 v-40"/><ellipse cx="882" cy="350" rx="40" ry="10"/>
+    <path d="M1030,350 v40 a40,10 0 0 0 80,0 v-40"/><ellipse cx="1070" cy="350" rx="40" ry="10"/>
+    <path d="M1217,350 v40 a40,10 0 0 0 80,0 v-40"/><ellipse cx="1257" cy="350" rx="40" ry="10"/>
+    <line x1="882" y1="310" x2="882" y2="340"/><line x1="1070" y1="310" x2="1070" y2="340"/><line x1="1257" y1="310" x2="1257" y2="340"/>
+  </g>
+  <text x="1070" y="430" text-anchor="middle" class="s">Una base de datos por servicio</text>
+  <text x="820" y="480" class="ok">✓ Cada servicio se despliega por separado</text>
+  <text x="820" y="508" class="ok">✓ Se escala solo Productos en temporada de descuentos</text>
+  <text x="820" y="536" class="ok">✓ Un fallo queda aislado en su servicio</text>
+  <text x="820" y="564" class="ok">✓ Equipos y tecnologías independientes</text>
+  <text x="820" y="592" class="ok">✓ Contratos claros mediante API REST</text>
+  <text x="700" y="670" text-anchor="middle" class="s">Costo: más complejidad operativa (red, monitoreo, seguridad entre servicios, consistencia de datos)</text>
+</svg>
+</body></html>

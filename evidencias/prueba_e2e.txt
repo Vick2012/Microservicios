@@ -1,0 +1,355 @@
+==============================================================================
+PRUEBA DE EXTREMO A EXTREMO - TIENDA VIRTUAL CON MICROSERVICIOS
+Fecha de ejecución: 2026-10-26 19:31:51
+==============================================================================
+
+--- 1. Estado de los microservicios -----------------------------------------
+[OK]    Todos los servicios responden
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "operativo",
+          "servicios": {
+            "productos": "activo",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+
+--- 2. Servicio de PRODUCTOS ------------------------------------------------
+[OK]    Consultar el catálogo completo
+        GET /api/productos  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "nombre": "Laptop Lenovo IdeaPad 5",
+            "descripcion": "Ryzen 7, 16 GB RAM, SSD 512 GB",
+            "categoria": "Portátiles",
+            "precio": 2899000.0,
+            "stock": 10,
+            "id": 1
+          },
+          {
+            "nombre": "Mouse Logitech MX Master 3S",
+            "descripcion": "Inalámbrico, 8000 DPI",
+            "categoria": "Accesorios",
+            "precio": 459000.0,
+            "stock": 25,
+            "id": 2
+          },
+          {
+            "nombre": "Monitor Samsung 27\" 4K",
+            "descripcion": "Panel IPS, 60 Hz, HDR10",
+            "categoria": "Monitores",
+            "precio": 1349000.0,
+            "stock": 8,
+            "id": 3
+          },
+          {
+            "nombre": "Teclado mecánico Redragon Kumara",
+            "descripcion": "Switches rojos, retroiluminado",
+            "categoria": "Accesorios",
+            "precio": 189000.0,
+            "stock": 0,
+            "id": 4
+          }
+        ]
+[OK]    Registrar un producto
+        POST /api/productos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"nombre": "Audífonos Sony WH-1000XM5", "descripcion": "Cancelación de ruido", "categoria": "Audio", "precio": 1599000, "stock": 6}
+        Respuesta: {
+          "nombre": "Audífonos Sony WH-1000XM5",
+          "descripcion": "Cancelación de ruido",
+          "categoria": "Audio",
+          "precio": 1599000.0,
+          "stock": 6,
+          "id": 5
+        }
+[OK]    Consultar el producto registrado
+        GET /api/productos/5  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "nombre": "Audífonos Sony WH-1000XM5",
+          "descripcion": "Cancelación de ruido",
+          "categoria": "Audio",
+          "precio": 1599000.0,
+          "stock": 6,
+          "id": 5
+        }
+[OK]    Filtrar por categoría
+        GET /api/productos?categoria=Accesorios  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "nombre": "Mouse Logitech MX Master 3S",
+            "descripcion": "Inalámbrico, 8000 DPI",
+            "categoria": "Accesorios",
+            "precio": 459000.0,
+            "stock": 25,
+            "id": 2
+          },
+          {
+            "nombre": "Teclado mecánico Redragon Kumara",
+            "descripcion": "Switches rojos, retroiluminado",
+            "categoria": "Accesorios",
+            "precio": 189000.0,
+            "stock": 0,
+            "id": 4
+          }
+        ]
+
+--- 3. Servicio de CLIENTES -------------------------------------------------
+[OK]    Registrar un cliente
+        POST /api/clientes  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"nombre": "Camila Torres", "documento": "52123456", "email": "camila.torres@correo.com", "telefono": "3105551234", "ciudad": "Cali"}
+        Respuesta: {
+          "nombre": "Camila Torres",
+          "documento": "52123456",
+          "email": "camila.torres@correo.com",
+          "telefono": "3105551234",
+          "ciudad": "Cali",
+          "id": 3
+        }
+[OK]    Consultar el cliente registrado
+        GET /api/clientes/3  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "nombre": "Camila Torres",
+          "documento": "52123456",
+          "email": "camila.torres@correo.com",
+          "telefono": "3105551234",
+          "ciudad": "Cali",
+          "id": 3
+        }
+[OK]    Consultar todos los clientes
+        GET /api/clientes  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "nombre": "Laura Gómez",
+            "documento": "1020304050",
+            "email": "laura.gomez@correo.com",
+            "telefono": "3001234567",
+            "ciudad": "Bogotá",
+            "id": 1
+          },
+          {
+            "nombre": "Andrés Rojas",
+            "documento": "1098765432",
+            "email": "andres.rojas@correo.com",
+            "telefono": "3159876543",
+            "ciudad": "Medellín",
+            "id": 2
+          },
+          {
+            "nombre": "Camila Torres",
+            "documento": "52123456",
+            "email": "camila.torres@correo.com",
+            "telefono": "3105551234",
+            "ciudad": "Cali",
+            "id": 3
+          }
+        ]
+
+--- 4. Servicio de PEDIDOS (comunicación entre servicios) -------------------
+[OK]    Registrar pedido (valida cliente, productos y descuenta stock)
+        POST /api/pedidos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"cliente_id": 3, "items": [{"producto_id": 5, "cantidad": 2}, {"producto_id": 2, "cantidad": 1}]}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 3,
+          "nombre_cliente": "Camila Torres",
+          "items": [
+            {
+              "producto_id": 5,
+              "nombre_producto": "Audífonos Sony WH-1000XM5",
+              "precio_unitario": 1599000.0,
+              "cantidad": 2,
+              "subtotal": 3198000.0
+            },
+            {
+              "producto_id": 2,
+              "nombre_producto": "Mouse Logitech MX Master 3S",
+              "precio_unitario": 459000.0,
+              "cantidad": 1,
+              "subtotal": 459000.0
+            }
+          ],
+          "total": 3657000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-27T00:31:52.255287",
+          "fecha_actualizacion": "2026-10-27T00:31:52.255287"
+        }
+[OK]    El stock del producto bajó de 6 a 4
+        GET /api/productos/5  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "nombre": "Audífonos Sony WH-1000XM5",
+          "descripcion": "Cancelación de ruido",
+          "categoria": "Audio",
+          "precio": 1599000.0,
+          "stock": 4,
+          "id": 5
+        }
+[OK]    Consultar el estado del pedido
+        GET /api/pedidos/1/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "pedido_id": 1,
+          "estado": "CREADO",
+          "fecha_actualizacion": "2026-10-27T00:31:52.255287"
+        }
+[OK]    Cambiar el estado a PAGADO
+        PUT /api/pedidos/1/estado  ->  HTTP 200 (esperado 200)
+        Cuerpo enviado: {"estado": "PAGADO"}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 3,
+          "nombre_cliente": "Camila Torres",
+          "items": [
+            {
+              "producto_id": 5,
+              "nombre_producto": "Audífonos Sony WH-1000XM5",
+              "precio_unitario": 1599000.0,
+              "cantidad": 2,
+              "subtotal": 3198000.0
+            },
+            {
+              "producto_id": 2,
+              "nombre_producto": "Mouse Logitech MX Master 3S",
+              "precio_unitario": 459000.0,
+              "cantidad": 1,
+              "subtotal": 459000.0
+            }
+          ],
+          "total": 3657000.0,
+          "estado": "PAGADO",
+          "fecha_creacion": "2026-10-27T00:31:52.255287",
+          "fecha_actualizacion": "2026-10-27T00:31:52.311649"
+        }
+[OK]    Cambiar el estado a ENVIADO
+        PUT /api/pedidos/1/estado  ->  HTTP 200 (esperado 200)
+        Cuerpo enviado: {"estado": "ENVIADO"}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 3,
+          "nombre_cliente": "Camila Torres",
+          "items": [
+            {
+              "producto_id": 5,
+              "nombre_producto": "Audífonos Sony WH-1000XM5",
+              "precio_unitario": 1599000.0,
+              "cantidad": 2,
+              "subtotal": 3198000.0
+            },
+            {
+              "producto_id": 2,
+              "nombre_producto": "Mouse Logitech MX Master 3S",
+              "precio_unitario": 459000.0,
+              "cantidad": 1,
+              "subtotal": 459000.0
+            }
+          ],
+          "total": 3657000.0,
+          "estado": "ENVIADO",
+          "fecha_creacion": "2026-10-27T00:31:52.255287",
+          "fecha_actualizacion": "2026-10-27T00:31:52.332772"
+        }
+[OK]    Cambiar el estado a ENTREGADO
+        PUT /api/pedidos/1/estado  ->  HTTP 200 (esperado 200)
+        Cuerpo enviado: {"estado": "ENTREGADO"}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 3,
+          "nombre_cliente": "Camila Torres",
+          "items": [
+            {
+              "producto_id": 5,
+              "nombre_producto": "Audífonos Sony WH-1000XM5",
+              "precio_unitario": 1599000.0,
+              "cantidad": 2,
+              "subtotal": 3198000.0
+            },
+            {
+              "producto_id": 2,
+              "nombre_producto": "Mouse Logitech MX Master 3S",
+              "precio_unitario": 459000.0,
+              "cantidad": 1,
+              "subtotal": 459000.0
+            }
+          ],
+          "total": 3657000.0,
+          "estado": "ENTREGADO",
+          "fecha_creacion": "2026-10-27T00:31:52.255287",
+          "fecha_actualizacion": "2026-10-27T00:31:52.352823"
+        }
+[OK]    Consultar pedidos del cliente
+        GET /api/pedidos?cliente_id=3  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "id": 1,
+            "cliente_id": 3,
+            "nombre_cliente": "Camila Torres",
+            "items": [
+              {
+                "producto_id": 5,
+                "nombre_producto": "Audífonos Sony WH-1000XM5",
+                "precio_unitario": 1599000.0,
+                "cantidad": 2,
+                "subtotal": 3198000.0
+              },
+              {
+                "producto_id": 2,
+                "nombre_producto": "Mouse Logitech MX Master 3S",
+                "precio_unitario": 459000.0,
+                "cantidad": 1,
+                "subtotal": 459000.0
+              }
+            ],
+            "total": 3657000.0,
+            "estado": "ENTREGADO",
+            "fecha_creacion": "2026-10-27T00:31:52.255287",
+            "fecha_actualizacion": "2026-10-27T00:31:52.352823"
+          }
+        ]
+
+--- 5. Casos de error controlados -------------------------------------------
+[OK]    Pedido con cliente inexistente
+        POST /api/pedidos  ->  HTTP 404 (esperado 404)
+        Cuerpo enviado: {"cliente_id": 999, "items": [{"producto_id": 1, "cantidad": 1}]}
+        Respuesta: {
+          "detail": "El cliente 999 no existe"
+        }
+[OK]    Pedido de producto sin stock (teclado, stock 0)
+        POST /api/pedidos  ->  HTTP 409 (esperado 409)
+        Cuerpo enviado: {"cliente_id": 1, "items": [{"producto_id": 4, "cantidad": 1}]}
+        Respuesta: {
+          "detail": "Stock insuficiente para 'Teclado mecánico Redragon Kumara': disponible 0, solicitado 1"
+        }
+[OK]    Cliente con correo duplicado
+        POST /api/clientes  ->  HTTP 409 (esperado 409)
+        Cuerpo enviado: {"nombre": "Camila Torres", "documento": "52123456", "email": "camila.torres@correo.com", "telefono": "3105551234", "ciudad": "Cali"}
+        Respuesta: {
+          "detail": "El correo camila.torres@correo.com ya está registrado"
+        }
+[OK]    Producto con precio negativo
+        POST /api/productos  ->  HTTP 422 (esperado 422)
+        Cuerpo enviado: {"nombre": "Audífonos Sony WH-1000XM5", "descripcion": "Cancelación de ruido", "categoria": "Audio", "precio": -5, "stock": 6}
+        Respuesta: {
+          "detail": [
+            {
+              "type": "greater_than",
+              "loc": [
+                "body",
+                "precio"
+              ],
+              "msg": "Input should be greater than 0",
+              "input": -5,
+              "ctx": {
+                "gt": 0.0
+              }
+            }
+          ]
+        }
+[OK]    Transición inválida (cancelar un pedido ya entregado)
+        PUT /api/pedidos/1/estado  ->  HTTP 409 (esperado 409)
+        Cuerpo enviado: {"estado": "CANCELADO"}
+        Respuesta: {
+          "detail": "No se puede pasar de ENTREGADO a CANCELADO. Permitidos: ninguno"
+        }
+
+==============================================================================
+RESUMEN: 20 verificaciones correctas, 0 fallidas
+==============================================================================

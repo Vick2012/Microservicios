@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Secuencia</title>
+<style>
+  body { margin: 0; background: #fff; font-family: "Segoe UI", Arial, sans-serif; }
+  .h { font-size: 17px; font-weight: 700; fill: #fff; }
+  .m { font-family: Consolas, monospace; font-size: 14px; fill: #10233f; }
+  .r { font-family: Consolas, monospace; font-size: 14px; fill: #15803d; }
+  .n { font-size: 14px; fill: #44546a; font-style: italic; }
+  .ttl { font-size: 26px; font-weight: 700; fill: #10233f; }
+</style></head>
+<body>
+<svg width="1400" height="1000" viewBox="0 0 1400 1000" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#10233f"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#15803d"/></marker>
+  </defs>
+  <text x="700" y="40" text-anchor="middle" class="ttl">Diagrama de secuencia — Registro de un pedido</text>
+
+  <!-- Participantes: x = 130, 410, 690, 970, 1250 -->
+  <g>
+    <rect x="50" y="70" width="160" height="50" rx="8" fill="#475569"/><text x="130" y="101" text-anchor="middle" class="h">Usuario</text>
+    <rect x="330" y="70" width="160" height="50" rx="8" fill="#1f3b63"/><text x="410" y="101" text-anchor="middle" class="h">Gateway :8000</text>
+    <rect x="610" y="70" width="160" height="50" rx="8" fill="#c2410c"/><text x="690" y="101" text-anchor="middle" class="h">Pedidos :8003</text>
+    <rect x="890" y="70" width="160" height="50" rx="8" fill="#15803d"/><text x="970" y="101" text-anchor="middle" class="h">Clientes :8002</text>
+    <rect x="1170" y="70" width="160" height="50" rx="8" fill="#2563eb"/><text x="1250" y="101" text-anchor="middle" class="h">Productos :8001</text>
+  </g>
+  <g stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6">
+    <line x1="130" y1="120" x2="130" y2="960"/><line x1="410" y1="120" x2="410" y2="960"/>
+    <line x1="690" y1="120" x2="690" y2="960"/><line x1="970" y1="120" x2="970" y2="960"/>
+    <line x1="1250" y1="120" x2="1250" y2="960"/>
+  </g>
+
+  <!-- Mensajes -->
+  <g stroke-width="2.2">
+    <line x1="130" y1="170" x2="404" y2="170" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="410" y1="230" x2="684" y2="230" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="690" y1="290" x2="964" y2="290" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="970" y1="340" x2="696" y2="340" stroke="#15803d" stroke-dasharray="7 5" marker-end="url(#g)"/>
+    <line x1="690" y1="400" x2="1244" y2="400" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="1250" y1="450" x2="696" y2="450" stroke="#15803d" stroke-dasharray="7 5" marker-end="url(#g)"/>
+    <line x1="690" y1="510" x2="1244" y2="510" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="1250" y1="560" x2="696" y2="560" stroke="#15803d" stroke-dasharray="7 5" marker-end="url(#g)"/>
+    <path d="M690,610 h70 v40 h-64" fill="none" stroke="#10233f" marker-end="url(#a)"/>
+    <line x1="690" y1="700" x2="416" y2="700" stroke="#15803d" stroke-dasharray="7 5" marker-end="url(#g)"/>
+    <line x1="410" y1="750" x2="136" y2="750" stroke="#15803d" stroke-dasharray="7 5" marker-end="url(#g)"/>
+  </g>
+  <text x="140" y="160" class="m">1. POST /api/pedidos</text>
+  <text x="420" y="220" class="m">2. POST /pedidos</text>
+  <text x="700" y="280" class="m">3. GET /clientes/1</text>
+  <text x="728" y="332" class="r">4. 200 {nombre…}</text>
+  <text x="700" y="390" class="m">5. GET /productos/1</text>
+  <text x="728" y="442" class="r">6. 200 {precio, stock}</text>
+  <text x="700" y="500" class="m">7. POST /productos/1/descontar-stock {cantidad: 2}</text>
+  <text x="728" y="552" class="r">8. 200 {stock actualizado}</text>
+  <text x="772" y="636" class="m">9. Guarda pedido (estado CREADO)</text>
+  <text x="448" y="692" class="r">10. 201 Pedido</text>
+  <text x="168" y="742" class="r">11. 201 Pedido</text>
+
+  <!-- Fragmento alternativo -->
+  <rect x="600" y="790" width="760" height="150" rx="6" fill="#fff4e5" stroke="#c2410c" stroke-width="2"/>
+  <rect x="600" y="790" width="150" height="30" fill="#c2410c"/>
+  <text x="675" y="811" text-anchor="middle" class="h" style="font-size:15px">alt  fallo</text>
+  <text x="620" y="848" class="m">Si Clientes o Productos no responden (timeout 2 s):</text>
+  <text x="620" y="874" class="m">  → 3 reintentos con espera creciente (0,5 s · 1 s)</text>
+  <text x="620" y="900" class="m">  → se devuelve el stock ya descontado (compensación)</text>
+  <text x="620" y="926" class="m">  → respuesta 503 {"servicio_afectado": "productos"}</text>
+  <text x="140" y="830" class="n">Errores de negocio:</text>
+  <text x="140" y="856" class="n">404 cliente/producto inexistente</text>
+  <text x="140" y="882" class="n">409 stock insuficiente</text>
+  <text x="140" y="908" class="n">422 datos inválidos</text>
+</svg>
+</body></html>

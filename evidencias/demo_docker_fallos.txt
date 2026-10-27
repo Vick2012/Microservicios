@@ -1,0 +1,158 @@
+==============================================================================
+TOLERANCIA A FALLOS CON DOCKER - CAÍDA DEL CONTENEDOR DE PRODUCTOS
+Fecha de ejecución: 2026-10-26 19:30:54
+==============================================================================
+
+--- 1. Contenedores en ejecución --------------------------------------------
+        $ docker compose ps --format table {{.Service}}	{{.State}}	{{.Ports}}
+          SERVICE     STATE     PORTS
+          clientes    running   0.0.0.0:8002->8002/tcp
+          gateway     running   0.0.0.0:8000->8000/tcp
+          pedidos     running   0.0.0.0:8003->8003/tcp
+          productos   running   0.0.0.0:8001->8001/tcp
+[OK]    Sistema operativo
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "operativo",
+          "servicios": {
+            "productos": "activo",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido con todo funcionando
+        POST /api/pedidos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"cliente_id": 2, "items": [{"producto_id": 3, "cantidad": 1}]}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 2,
+          "nombre_cliente": "Andrés Rojas",
+          "items": [
+            {
+              "producto_id": 3,
+              "nombre_producto": "Monitor Samsung 27\" 4K",
+              "precio_unitario": 1349000.0,
+              "cantidad": 1,
+              "subtotal": 1349000.0
+            }
+          ],
+          "total": 1349000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-27T00:30:55.232116",
+          "fecha_actualizacion": "2026-10-27T00:30:55.232116"
+        }
+
+--- 2. Se detiene SOLO el contenedor de Productos ---------------------------
+        $ docker compose stop productos
+          Container tallermicroservicios-productos-1  Stopping
+          Container tallermicroservicios-productos-1  Stopped
+        $ docker compose ps --all --format table {{.Service}}	{{.State}}
+          SERVICE     STATE
+          clientes    running
+          gateway     running
+          pedidos     running
+          productos   exited
+
+--- 3. Comportamiento con Productos caído -----------------------------------
+[OK]    El gateway reporta el sistema 'degradado'
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "degradado",
+          "servicios": {
+            "productos": "caído",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido: 503 controlado tras reintentos
+        POST /api/pedidos  ->  HTTP 503 (esperado 503)
+        Cuerpo enviado: {"cliente_id": 2, "items": [{"producto_id": 3, "cantidad": 1}]}
+        Respuesta: {
+          "detail": "El servicio de productos no está disponible en este momento",
+          "servicio_afectado": "productos",
+          "causa": "no respondió en 2.0 s (timeout)",
+          "sugerencia": "Intente nuevamente en unos minutos. Las consultas de pedidos existentes siguen disponibles."
+        }
+        Tiempo hasta responder: 7.53 s
+[OK]    Clientes sigue funcionando (aislamiento)
+        GET /api/clientes  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "nombre": "Laura Gómez",
+            "documento": "1020304050",
+            "email": "laura.gomez@correo.com",
+            "telefono": "3001234567",
+            "ciudad": "Bogotá",
+            "id": 1
+          },
+          {
+            "nombre": "Andrés Rojas",
+            "documento": "1098765432",
+            "email": "andres.rojas@correo.com",
+            "telefono": "3159876543",
+            "ciudad": "Medellín",
+            "id": 2
+          }
+        ]
+[OK]    Los pedidos existentes se siguen consultando
+        GET /api/pedidos  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "id": 1,
+            "cliente_id": 2,
+            "nombre_cliente": "Andrés Rojas",
+            "items": [
+              {
+                "producto_id": 3,
+                "nombre_producto": "Monitor Samsung 27\" 4K",
+                "precio_unitario": 1349000.0,
+                "cantidad": 1,
+                "subtotal": 1349000.0
+              }
+            ],
+            "total": 1349000.0,
+            "estado": "CREADO",
+            "fecha_creacion": "2026-10-27T00:30:55.232116",
+            "fecha_actualizacion": "2026-10-27T00:30:55.232116"
+          }
+        ]
+
+--- 4. Recuperación: se inicia de nuevo el contenedor de Productos ----------
+        $ docker compose start productos
+          Container tallermicroservicios-productos-1  Starting
+          Container tallermicroservicios-productos-1  Started
+[OK]    Sistema nuevamente operativo
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "operativo",
+          "servicios": {
+            "productos": "activo",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido tras la recuperación
+        POST /api/pedidos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"cliente_id": 2, "items": [{"producto_id": 3, "cantidad": 1}]}
+        Respuesta: {
+          "id": 2,
+          "cliente_id": 2,
+          "nombre_cliente": "Andrés Rojas",
+          "items": [
+            {
+              "producto_id": 3,
+              "nombre_producto": "Monitor Samsung 27\" 4K",
+              "precio_unitario": 1349000.0,
+              "cantidad": 1,
+              "subtotal": 1349000.0
+            }
+          ],
+          "total": 1349000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-27T00:31:06.396760",
+          "fecha_actualizacion": "2026-10-27T00:31:06.396760"
+        }
+
+==============================================================================
+RESUMEN: 8 verificaciones correctas, 0 fallidas
+==============================================================================

@@ -1,0 +1,5 @@
+﻿NAME                               IMAGE                            STATUS          PORTS
+tallermicroservicios-clientes-1    tallermicroservicios-clientes    Up 27 seconds   0.0.0.0:8002->8002/tcp
+tallermicroservicios-gateway-1     tallermicroservicios-gateway     Up 27 seconds   0.0.0.0:8000->8000/tcp
+tallermicroservicios-pedidos-1     tallermicroservicios-pedidos     Up 27 seconds   0.0.0.0:8003->8003/tcp
+tallermicroservicios-productos-1   tallermicroservicios-productos   Up 27 seconds   0.0.0.0:8001->8001/tcp

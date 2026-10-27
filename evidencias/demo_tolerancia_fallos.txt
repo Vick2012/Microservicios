@@ -1,0 +1,148 @@
+==============================================================================
+DEMOSTRACIÓN DE TOLERANCIA A FALLOS - CAÍDA DEL SERVICIO DE PRODUCTOS
+Fecha de ejecución: 2026-10-26 19:25:42
+==============================================================================
+
+--- 1. Situación normal: todos los servicios activos ------------------------
+[OK]    Sistema operativo
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "operativo",
+          "servicios": {
+            "productos": "activo",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido con todo funcionando
+        POST /api/pedidos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"cliente_id": 1, "items": [{"producto_id": 1, "cantidad": 1}]}
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 1,
+          "nombre_cliente": "Laura Gómez",
+          "items": [
+            {
+              "producto_id": 1,
+              "nombre_producto": "Laptop Lenovo IdeaPad 5",
+              "precio_unitario": 2899000.0,
+              "cantidad": 1,
+              "subtotal": 2899000.0
+            }
+          ],
+          "total": 2899000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-26T19:25:44.175703",
+          "fecha_actualizacion": "2026-10-26T19:25:44.175703"
+        }
+
+--- 2. Se detiene el proceso del servicio de PRODUCTOS ----------------------
+        Proceso de Productos (puerto 8001) detenido.
+
+--- 3. Comportamiento con Productos caído -----------------------------------
+[OK]    El gateway detecta el sistema como 'degradado'
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "degradado",
+          "servicios": {
+            "productos": "caído",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido: respuesta controlada 503 tras reintentos
+        POST /api/pedidos  ->  HTTP 503 (esperado 503)
+        Cuerpo enviado: {"cliente_id": 1, "items": [{"producto_id": 1, "cantidad": 1}]}
+        Respuesta: {
+          "detail": "El servicio de productos no está disponible en este momento",
+          "servicio_afectado": "productos",
+          "causa": "no respondió en 2.0 s (timeout)",
+          "sugerencia": "Intente nuevamente en unos minutos. Las consultas de pedidos existentes siguen disponibles."
+        }
+        Tiempo hasta responder (3 intentos con espera creciente): 8.18 s
+[OK]    Consultar catálogo: 503 desde el gateway
+        GET /api/productos  ->  HTTP 503 (esperado 503)
+        Respuesta: {
+          "detail": "El servicio de productos no está disponible",
+          "servicio_afectado": "productos"
+        }
+[OK]    Clientes SIGUE funcionando (aislamiento de fallos)
+        GET /api/clientes  ->  HTTP 200 (esperado 200)
+        Respuesta: [
+          {
+            "nombre": "Laura Gómez",
+            "documento": "1020304050",
+            "email": "laura.gomez@correo.com",
+            "telefono": "3001234567",
+            "ciudad": "Bogotá",
+            "id": 1
+          },
+          {
+            "nombre": "Andrés Rojas",
+            "documento": "1098765432",
+            "email": "andres.rojas@correo.com",
+            "telefono": "3159876543",
+            "ciudad": "Medellín",
+            "id": 2
+          }
+        ]
+[OK]    Los pedidos existentes se siguen consultando
+        GET /api/pedidos/1  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "id": 1,
+          "cliente_id": 1,
+          "nombre_cliente": "Laura Gómez",
+          "items": [
+            {
+              "producto_id": 1,
+              "nombre_producto": "Laptop Lenovo IdeaPad 5",
+              "precio_unitario": 2899000.0,
+              "cantidad": 1,
+              "subtotal": 2899000.0
+            }
+          ],
+          "total": 2899000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-26T19:25:44.175703",
+          "fecha_actualizacion": "2026-10-26T19:25:44.175703"
+        }
+
+--- 4. Recuperación: se reinicia el servicio de PRODUCTOS -------------------
+[OK]    Sistema nuevamente operativo
+        GET /api/estado  ->  HTTP 200 (esperado 200)
+        Respuesta: {
+          "sistema": "operativo",
+          "servicios": {
+            "productos": "activo",
+            "clientes": "activo",
+            "pedidos": "activo"
+          }
+        }
+[OK]    Registrar pedido tras la recuperación
+        POST /api/pedidos  ->  HTTP 201 (esperado 201)
+        Cuerpo enviado: {"cliente_id": 1, "items": [{"producto_id": 1, "cantidad": 1}]}
+        Respuesta: {
+          "id": 2,
+          "cliente_id": 1,
+          "nombre_cliente": "Laura Gómez",
+          "items": [
+            {
+              "producto_id": 1,
+              "nombre_producto": "Laptop Lenovo IdeaPad 5",
+              "precio_unitario": 2899000.0,
+              "cantidad": 1,
+              "subtotal": 2899000.0
+            }
+          ],
+          "total": 2899000.0,
+          "estado": "CREADO",
+          "fecha_creacion": "2026-10-26T19:25:58.460671",
+          "fecha_actualizacion": "2026-10-26T19:25:58.460671"
+        }
+
+Nota: al reiniciarse, Productos vuelve a sus datos semilla porque usa listas en
+memoria. En producción cada servicio tendría su propia base de datos persistente.
+
+==============================================================================
+RESUMEN: 9 verificaciones correctas, 0 fallidas
+==============================================================================

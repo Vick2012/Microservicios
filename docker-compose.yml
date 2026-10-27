@@ -1,0 +1,41 @@
+# Despliegue con contenedores (opcional).
+# Cada microservicio corre en su propio contenedor y se comunica con los demás
+# por la red interna de Docker usando el nombre del servicio como host.
+#
+#   docker compose up --build        -> levanta todo
+#   docker compose stop productos    -> simula la caída del servicio de productos
+#   docker compose start productos   -> lo recupera
+services:
+  productos:
+    build: ./servicio_productos
+    ports:
+      - "8001:8001"
+
+  clientes:
+    build: ./servicio_clientes
+    ports:
+      - "8002:8002"
+
+  pedidos:
+    build: ./servicio_pedidos
+    ports:
+      - "8003:8003"
+    environment:
+      PRODUCTOS_URL: http://productos:8001
+      CLIENTES_URL: http://clientes:8002
+    depends_on:
+      - productos
+      - clientes
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8000:8000"
+    environment:
+      PRODUCTOS_URL: http://productos:8001
+      CLIENTES_URL: http://clientes:8002
+      PEDIDOS_URL: http://pedidos:8003
+    depends_on:
+      - productos
+      - clientes
+      - pedidos

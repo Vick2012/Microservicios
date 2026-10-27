@@ -1,0 +1,6 @@
+# Dependencias para desarrollo local (todos los servicios + pruebas).
+# Cada servicio tiene además su propio requirements.txt para desplegarse por separado.
+fastapi==0.115.6
+uvicorn==0.32.1
+httpx==0.28.1
+pytest==8.3.4
